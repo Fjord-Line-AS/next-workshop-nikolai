@@ -30,4 +30,9 @@ type TOutput = {
   };
 };
 
-export type { TModel, TOutput };
+type TLoading = {
+  models: boolean;
+  answers: boolean;
+};
+
+export type { TModel, TOutput, TLoading };
