@@ -2,9 +2,12 @@
 import { useState, useEffect } from "react";
 import { TModel, TOutput, TLoading } from "@/types";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
+import ChatBubble from "@/components/ChatBubble";
 
 export default function Home() {
-  const getCurrentModel = localStorage.getItem("openai-current-model");
+  const getCurrentModel =
+    typeof window !== "undefined" &&
+    window.localStorage.getItem("openai-current-model");
   const [message, setMessage] = useState<string>("");
   const [currentModel, setCurrentModel] = useState<string>(
     getCurrentModel || "text-davinci-003"
@@ -14,29 +17,32 @@ export default function Home() {
     models: true,
     answers: false,
   });
-
-  const [output, setOutput] = useState<TOutput>({
-    guest: {
-      messages: [],
-    },
-    openAI: {
-      messages: [],
-    },
+  const [error, setError] = useState<TLoading>({
+    models: false,
+    answers: false,
   });
 
-  const handleLoading = (type: "models" | "answers", isLoading: boolean) => {
-    switch (type) {
-      case "models":
-        setLoading((prev) => ({
-          ...prev,
-          models: isLoading,
-        }));
-      case "answers":
-        setLoading((prev) => ({
-          ...prev,
-          answers: isLoading,
-        }));
-    }
+  const [output, setOutput] = useState<TOutput[]>([]);
+
+  const clearChat = () => {
+    setOutput([]);
+  };
+
+  const handleOutput = (message: TOutput) => {
+    setOutput((prev) => [...prev, message]);
+  };
+
+  const handleLoading = (type: TLoading) => {
+    setLoading((prev) => ({
+      ...prev,
+      ...type,
+    }));
+  };
+  const handleError = (type: TLoading) => {
+    setError((prev) => ({
+      ...prev,
+      ...type,
+    }));
   };
   const handleMessage = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
@@ -45,6 +51,7 @@ export default function Home() {
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCurrentModel(e.target.value);
     localStorage.setItem("openai-current-model", e.target.value);
+    handleError({ answers: false });
   };
 
   const findCachedModel = () => {
@@ -57,12 +64,12 @@ export default function Home() {
   // get OpenAI models
   useEffect(() => {
     const fetchModels = async () => {
-      handleLoading("models", true);
+      handleLoading({ models: true });
       const res = await fetch("/api/models");
       if (res.status === 200) {
         const data = await res.json();
         setModels(data.data);
-        handleLoading("models", false);
+        handleLoading({ models: false });
       }
     };
     fetchModels();
@@ -71,7 +78,9 @@ export default function Home() {
 
   //
   const fetchData = async (model: string, message: string) => {
-    handleLoading("answers", true);
+    handleOutput({ sender: "guest", message: message });
+    setMessage("");
+    handleLoading({ answers: true });
     const req = await fetch(`/api/generateAnswer`, {
       method: "POST",
       body: JSON.stringify({
@@ -79,11 +88,19 @@ export default function Home() {
         message: message,
       }),
     });
-    console.log(req);
+    console.log(req.status);
     if (req.status === 200) {
-      handleLoading("answers", false);
+      const answer = await req.json();
+      console.log(answer);
+      handleLoading({ answers: false });
+      handleOutput({ sender: "AI", message: answer });
+    } else {
+      handleError({ answers: true });
+      handleLoading({ answers: false });
     }
   };
+
+  console.log(output);
 
   return (
     <main className=" flex flex-col justify-between items-center p-10 h-screen max-w-5xl m-auto ">
@@ -98,6 +115,12 @@ export default function Home() {
             className="w-40 rounded"
           />
         </a>
+        {error.answers && (
+          <div>
+            <span className="font-bold">ERROR</span>
+            <p className="p-3 bg-red-400">Could not fetch from OpenAi</p>
+          </div>
+        )}
         {loading.models ? (
           <LoadingSkeleton />
         ) : (
@@ -147,20 +170,25 @@ export default function Home() {
           </div>
         )}
       </div>
-      {/* {data && data.result && (
-        <div className="result codeblock-container">
-          <div className="codeblock-content">{data.result}</div>
-        </div>
-      )} */}
+      <span onClick={clearChat} className="bg-red-500 p-2 cursor-pointer">
+        Clear Chat
+      </span>
+      <div className="result codeblock-container bg-white w-full h-full mb-5 overflow-y-scroll">
+        {output.length > 0 &&
+          output.map((message) => {
+            return (
+              <ChatBubble message={message.message} sender={message.sender} />
+            );
+          })}
+      </div>
 
-      <div className="name flex-col flex bg-red-500">
+      <div className="name flex-col flex bg-red-500 w-full">
         <textarea
           value={message}
           onChange={(e) => handleMessage(e)}
-          className="input p-2 resize-none text-black"
+          className="input p-2 resize-none text-black w-full"
           placeholder="Tell me something"
-          rows={9}
-          cols={108}
+          disabled={loading.answers}
         />
         <button
           onClick={() => fetchData(currentModel, message)}

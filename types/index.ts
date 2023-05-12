@@ -22,17 +22,13 @@ type TPermission = {
 };
 
 type TOutput = {
-  guest: {
-    messages: any[];
-  };
-  openAI: {
-    messages: any[];
-  };
+  sender: "guest" | "AI";
+  message: string;
 };
 
 type TLoading = {
-  models: boolean;
-  answers: boolean;
+  models?: boolean;
+  answers?: boolean;
 };
 
 export type { TModel, TOutput, TLoading };
