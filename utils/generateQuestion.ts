@@ -2,16 +2,15 @@ import { openAiClient } from "./openAiClient";
 export const generateQuestion = async (model: string, message: string) => {
   const prompt = message;
 
-  const completion = await openAiClient.createCompletion({
+  const completion = await openAiClient.createChatCompletion({
     model: model,
-    prompt: prompt,
+    messages: [{ role: "user", content: prompt }],
     temperature: 0,
     max_tokens: 256,
     top_p: 1,
-    best_of: 5,
     frequency_penalty: 1,
     presence_penalty: 0,
   });
-  console.log(completion.data.choices[0].text);
-  return completion.data.choices[0].text;
+  console.log(completion.data.choices[0]);
+  return completion.data.choices[0].message?.content;
 };

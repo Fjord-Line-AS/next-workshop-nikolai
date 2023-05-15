@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { TModel, TOutput, TLoading } from "@/types";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import ChatBubble from "@/components/ChatBubble";
+import { roboto } from "@/styles/fonts";
 
 export default function Home() {
   const getCurrentModel =
@@ -103,7 +104,9 @@ export default function Home() {
   console.log(output);
 
   return (
-    <main className=" flex flex-col justify-between items-center p-10 h-screen max-w-5xl m-auto ">
+    <main
+      className={`flex flex-col justify-between items-center p-10 h-screen max-w-5xl m-auto ${roboto.className}`}
+    >
       <div className="flex justify-between items-start w-full">
         <a
           href="https://platform.openai.com/docs/introduction"
@@ -173,7 +176,7 @@ export default function Home() {
       <span onClick={clearChat} className="bg-red-500 p-2 cursor-pointer">
         Clear Chat
       </span>
-      <div className="result codeblock-container bg-white w-full h-full mb-5 overflow-y-scroll">
+      <div className="result codeblock-container bg-white w-full h-full mb-1 overflow-y-scroll">
         {output.length > 0 &&
           output.map((message) => {
             return (
