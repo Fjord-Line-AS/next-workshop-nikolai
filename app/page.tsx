@@ -4,6 +4,7 @@ import { TModel, TOutput, TLoading } from "@/types";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import ChatBubble from "@/components/ChatBubble";
 import { roboto } from "@/styles/fonts";
+import { getCodeAsString } from "@/utils";
 
 export default function Home() {
   const getCurrentModel =
@@ -11,7 +12,7 @@ export default function Home() {
     window.localStorage.getItem("openai-current-model");
   const [message, setMessage] = useState<string>("");
   const [currentModel, setCurrentModel] = useState<string>(
-    getCurrentModel || "text-davinci-003"
+    getCurrentModel || "gpt-3.5-turbo"
   );
   const [models, setModels] = useState<TModel[]>([]);
   const [loading, setLoading] = useState<TLoading>({
@@ -45,6 +46,7 @@ export default function Home() {
       ...type,
     }));
   };
+
   const handleMessage = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
   };
@@ -100,6 +102,8 @@ export default function Home() {
       handleLoading({ answers: false });
     }
   };
+  // TODO use this function to generate documentation for code snippets
+  getCodeAsString(fetchData);
 
   console.log(output);
 
@@ -178,9 +182,13 @@ export default function Home() {
       </span>
       <div className="result codeblock-container bg-white w-full h-full mb-1 overflow-y-scroll">
         {output.length > 0 &&
-          output.map((message) => {
+          output.map((message, idx) => {
             return (
-              <ChatBubble message={message.message} sender={message.sender} />
+              <ChatBubble
+                key={idx}
+                message={message.message}
+                sender={message.sender}
+              />
             );
           })}
       </div>

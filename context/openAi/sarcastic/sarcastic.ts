@@ -1,0 +1,241 @@
+import { getCodeAsString } from "@/utils";
+//https://help.openai.com/en/articles/6654000-best-practices-for-prompt-engineering-with-openai-api
+const sarcasticContext = (prompt: string, context: string): string => {
+  console.log(new Date().toISOString().substring(11, 24));
+  const contextInstructions = `Use this context data as helper data but dont mention that you got them from the context data - if you have additional information you can use that. DATE_INFORMATION is used to inform you about todays date and time, FJORDLINE gives you information about ships and departures. departureDate is when the boat leaves `;
+  const instruction = `Answer the question below as accurate as you can using the context data provided alongside any additional data you already have.Never mention the context data. Answer in the same language as the question below is written in - but if in doubt answer in Norwegian`;
+  return `${contextInstructions}\n\n\nContext: "${context}"\n\n\n${instruction}\n\n\n Question: """ ${prompt} """`;
+};
+
+const contextData = {
+  DATE_INFORMATION: {
+    today: new Date(),
+    currentTime: new Date().toISOString().substring(11, -1),
+  },
+  FJORDLINE: {
+    ships: [
+      {
+        name: "Stavangerfjord",
+        routes: ["Stavanger-Bergen", "Stavanger-Hirtshals"],
+        debut: "July 2013",
+        length: "134,5 meters",
+        width: "27.5 meters",
+      },
+      {
+        name: "Bergensfjord",
+        routes: ["Bergen-Stavanger", "Stavanger-Hirtshals"],
+        debut: "June 2014",
+        length: "134,5 meters",
+        width: "24 meters",
+      },
+      {
+        name: "Oslofjord",
+        routes: ["Sandefjord-Strømstad", "Strømstad-Sandefjord"],
+        debut: "June 2014",
+        length: "134,5 meters",
+        width: "24 meters",
+      },
+      {
+        name: "Fjord FSTR",
+        routes: ["Stavanger-Bergen", "Stavanger-Hirtshals"],
+        debut: "June 2014",
+        length: "134,5 meters",
+        width: "24 meters",
+      },
+      {
+        name: "Stavangerfjord",
+        routes: ["Stavanger-Bergen", "Stavanger-Hirtshals"],
+        debut: "June 2014",
+        length: "134,5 meters",
+        width: "24 meters",
+      },
+    ],
+    departures: {
+      routeName: "P~B-P~S",
+      portFrom: "Bergen",
+      portTo: "Stavanger",
+      departures: [
+        {
+          departureDate: "2023-06-02",
+          arrivalTime: "2023-06-02T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-02T11:30:00.000Z",
+          departureCode: "BS020620231329",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-05",
+          arrivalTime: "2023-06-05T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-05T11:30:00.000Z",
+          departureCode: "BS050620231329",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-07",
+          arrivalTime: "2023-06-07T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-07T11:30:00.000Z",
+          departureCode: "BS070620231329",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-09",
+          arrivalTime: "2023-06-09T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-09T11:30:00.000Z",
+          departureCode: "BS090620231329",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-12",
+          arrivalTime: "2023-06-12T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-12T11:30:00.000Z",
+          departureCode: "BS120620231329",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-14",
+          arrivalTime: "2023-06-14T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-14T11:30:00.000Z",
+          departureCode: "BS140620231329",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-16",
+          arrivalTime: "2023-06-16T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-16T11:30:00.000Z",
+          departureCode: "BS160620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-17",
+          arrivalTime: "2023-06-17T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-17T11:30:00.000Z",
+          departureCode: "BS170620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-18",
+          arrivalTime: "2023-06-18T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-18T11:30:00.000Z",
+          departureCode: "BS180620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-19",
+          arrivalTime: "2023-06-19T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-19T11:30:00.000Z",
+          departureCode: "BS190620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-20",
+          arrivalTime: "2023-06-20T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-20T11:30:00.000Z",
+          departureCode: "BS200620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-21",
+          arrivalTime: "2023-06-21T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-21T11:30:00.000Z",
+          departureCode: "BS210620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-22",
+          arrivalTime: "2023-06-22T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-22T11:30:00.000Z",
+          departureCode: "BS220620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-23",
+          arrivalTime: "2023-06-23T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-23T11:30:00.000Z",
+          departureCode: "BS230620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-24",
+          arrivalTime: "2023-06-24T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-24T11:30:00.000Z",
+          departureCode: "BS240620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-25",
+          arrivalTime: "2023-06-25T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-25T11:30:00.000Z",
+          departureCode: "BS250620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-26",
+          arrivalTime: "2023-06-26T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-26T11:30:00.000Z",
+          departureCode: "BS260620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-27",
+          arrivalTime: "2023-06-27T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-27T11:30:00.000Z",
+          departureCode: "BS270620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-28",
+          arrivalTime: "2023-06-28T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-28T11:30:00.000Z",
+          departureCode: "BS280620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-29",
+          arrivalTime: "2023-06-29T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-29T11:30:00.000Z",
+          departureCode: "BS290620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-06-30",
+          arrivalTime: "2023-06-30T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-06-30T11:30:00.000Z",
+          departureCode: "BS300620231330",
+          departureStatus: "OPEN",
+        },
+        {
+          departureDate: "2023-07-01",
+          arrivalTime: "2023-07-01T17:00:00.000Z",
+          journeyCode: "B-S",
+          departureTime: "2023-07-01T11:30:00.000Z",
+          departureCode: "BS010720231330",
+          departureStatus: "OPEN",
+        },
+      ],
+    },
+  },
+};
+
+const contextDataAsString = JSON.stringify(contextData);
+
+export { contextDataAsString, sarcasticContext };
