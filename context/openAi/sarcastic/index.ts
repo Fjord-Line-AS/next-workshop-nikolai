@@ -1,2 +1,2 @@
-import { sarcasticContext, contextDataAsString } from "./sarcastic";
-export { sarcasticContext, contextDataAsString };
+import { sarcasticContext } from "./sarcastic";
+export { sarcasticContext };

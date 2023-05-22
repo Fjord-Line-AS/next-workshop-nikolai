@@ -1,15 +1,19 @@
 import { openAiClient } from "./openAiClient";
-import {
-  sarcasticContext,
-  contextDataAsString,
-} from "@/context/openAi/sarcastic";
-export const generateQuestion = async (model: string, message: string) => {
+import { sarcasticContext } from "@/context/openAi/sarcastic";
+export const generateQuestion = async (
+  model: string,
+  message: string,
+  contextData: string
+) => {
   const prompt = message;
 
   const completion = await openAiClient.createChatCompletion({
     model: model,
     messages: [
-      { role: "user", content: sarcasticContext(prompt, contextDataAsString) },
+      {
+        role: "user",
+        content: sarcasticContext(prompt, contextData),
+      },
     ],
     temperature: 0,
     max_tokens: 256,
