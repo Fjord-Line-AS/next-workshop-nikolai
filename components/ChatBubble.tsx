@@ -10,7 +10,6 @@ type Props = {
 const ChatBubble = (props: Props) => {
   const messageRef = useRef<HTMLParagraphElement>(null);
   const { message, sender } = props;
-  console.log(message);
   useEffect(() => {
     if (messageRef.current) {
       messageRef.current.innerHTML = message;

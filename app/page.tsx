@@ -44,7 +44,6 @@ const getInitialDeparturesGraphQl = async (portFrom: any, portTo: any) => {
 };
 
 const handlePromises = (promiseArray: any) => {
-  console.log(promiseArray[0].value);
   let routeNames: any[] = [];
   // Dynamically check for available routenames
   for (const route of promiseArray) {

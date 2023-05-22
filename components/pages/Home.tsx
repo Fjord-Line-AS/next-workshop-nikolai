@@ -12,7 +12,6 @@ type Props = {
 
 export default function Home(props: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  console.log(props.contextData);
   const getCurrentModel =
     typeof window !== "undefined" &&
     window.localStorage.getItem("openai-current-model");
@@ -36,13 +35,8 @@ export default function Home(props: Props) {
     setOutput([]);
   };
 
-  const scrollToBottom = () => {
-    console.log(ref.current);
-  };
-
   const handleOutput = (message: TOutput) => {
     setOutput((prev) => [...prev, message]);
-    scrollToBottom();
   };
 
   const handleLoading = (type: TLoading) => {
@@ -58,11 +52,8 @@ export default function Home(props: Props) {
     }));
   };
 
-  ref?.current && console.log("REF", ref);
-
   const handleMessage = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
-    scrollToBottom();
   };
 
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -110,10 +101,8 @@ export default function Home(props: Props) {
         contextData: contextData,
       }),
     });
-    console.log(req.status);
     if (req.status === 200) {
       const answer = await req.json();
-      console.log(answer);
       handleLoading({ answers: false });
       handleOutput({ sender: "AI", message: answer });
     } else {
@@ -124,10 +113,15 @@ export default function Home(props: Props) {
   // TODO use this function to generate documentation for code snippets
   getCodeAsString(fetchData);
 
-  console.log(output);
-
+  // Scroll to bottom of chat when new messages arrvies
   useEffect(() => {
-    ref.current?.scrollIntoView({ behavior: "smooth" });
+    if (ref.current?.scrollTop != undefined) {
+      ref.current.scrollTo({
+        top: ref.current.scrollHeight,
+        left: 0,
+        behavior: "smooth",
+      });
+    }
   }, [output]);
 
   return (
@@ -180,12 +174,9 @@ export default function Home(props: Props) {
                         <li>
                           <strong>Owned By</strong>: {model.owned_by}
                         </li>
-                        <li>
-                          <strong>Root</strong>: {model.root}
-                        </li>
                         <li className="flex">
-                          <strong>Allow View</strong>:{" "}
-                          {model.permission[0].allow_view ? (
+                          <strong>Allow Fine Tuning</strong>:{" "}
+                          {model.permission[0].allow_fine_tuning ? (
                             <p> &#9989;</p>
                           ) : (
                             <p> &#10060;</p>
