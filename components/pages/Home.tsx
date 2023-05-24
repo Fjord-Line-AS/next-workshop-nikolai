@@ -11,10 +11,14 @@ type Props = {
 };
 
 export default function Home(props: Props) {
+  console.log(props.contextData);
   const ref = useRef<HTMLDivElement>(null);
   const getCurrentModel =
     typeof window !== "undefined" &&
     window.localStorage.getItem("openai-current-model");
+  const getCurrentConveration =
+    typeof window !== "undefined" &&
+    window.localStorage.getItem("openai-current-conversation");
   const [message, setMessage] = useState<string>("");
   const [currentModel, setCurrentModel] = useState<string>(
     getCurrentModel || "gpt-3.5-turbo"
@@ -33,6 +37,7 @@ export default function Home(props: Props) {
 
   const clearChat = () => {
     setOutput([]);
+    localStorage.setItem("openai-current-conversation", "");
   };
 
   const handleOutput = (message: TOutput) => {
@@ -69,6 +74,13 @@ export default function Home(props: Props) {
     setCurrentModel(getCurrentModel);
   };
 
+  const findCachedMessages = () => {
+    if (!getCurrentConveration) {
+      return;
+    }
+    setOutput(JSON.parse(getCurrentConveration));
+  };
+
   // get OpenAI models
   useEffect(() => {
     const fetchModels = async () => {
@@ -82,6 +94,7 @@ export default function Home(props: Props) {
     };
     fetchModels();
     findCachedModel();
+    findCachedMessages();
   }, []);
 
   //
@@ -90,6 +103,7 @@ export default function Home(props: Props) {
     message: string,
     contextData: any[]
   ) => {
+    handleError({ answers: false });
     handleOutput({ sender: "guest", message: message });
     setMessage("");
     handleLoading({ answers: true });
@@ -98,7 +112,13 @@ export default function Home(props: Props) {
       body: JSON.stringify({
         model: model,
         message: message,
-        contextData: contextData,
+        contextData: [
+          ...contextData,
+          {
+            dataType: "Prev messages",
+            prevMessages: output,
+          },
+        ],
       }),
     });
     if (req.status === 200) {
@@ -122,6 +142,7 @@ export default function Home(props: Props) {
         behavior: "smooth",
       });
     }
+    localStorage.setItem("openai-current-conversation", JSON.stringify(output));
   }, [output]);
 
   return (

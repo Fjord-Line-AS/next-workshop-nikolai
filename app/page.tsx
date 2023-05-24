@@ -1,4 +1,22 @@
+"use server";
 import Home from "@/components/pages/Home";
+import { createClient, type ClientConfig } from "@sanity/client";
+import type { Campaigns } from "@/types/sanity";
+
+const config: ClientConfig = {
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  useCdn: true,
+  apiVersion: "2023-05-23",
+};
+
+const sanityClient = createClient(config);
+
+const sanityData: Campaigns[] = [];
+
+sanityClient
+  .fetch('*[_type == "campaign"]')
+  .then((res) => sanityData.push(res));
 
 const getAllowedDestinations = async () => {
   const query = JSON.stringify({
@@ -25,9 +43,9 @@ const getInitialDeparturesGraphQl = async (portFrom: any, portTo: any) => {
     variables: {
       requestParams: {
         originPort: portFrom,
-        fromDate: new Date().toISOString().substring(0, 10),
+        fromDate: new Date("2023-05-23").toISOString().substring(0, 10),
         destinationPort: portTo,
-        toDate: new Date("2023-06-30").toISOString().substring(0, 10),
+        toDate: new Date("2023-05-30").toISOString().substring(0, 10),
       },
     },
   });
@@ -100,31 +118,21 @@ export default async function HomePage() {
   return (
     <Home
       contextData={[
-        ...initialDepartures,
-        ...allowedDestinationsResponse.data.portLegs,
         {
-          ports: [
-            "Bergen",
-            "Stavanger",
-            "Kristiansand",
-            "Strømstad",
-            "Sandefjord",
-            "Hirtshals",
-          ],
-          Links: [
-            {
-              name: "https://www.fjordline.com",
-              description: "Homepage for Fjordline",
-              actions: ["booking", "bundles", "cruises"],
-              alias: "www.fjordline.com",
-            },
-            {
-              name: "https://digidev.fjordline.com/departure-logs/",
-              description: "Overview of departures",
-              actions: ["browse departures", "check departure status"],
-              alias: "www.fjordline.com/departures",
-            },
-          ],
+          dataType: "departures",
+          description: "Used to find departures for our customers",
+          departures: initialDepartures,
+        },
+        {
+          dataType: "ports",
+          description: "Used to find allowed destinations",
+          portLegs: allowedDestinationsResponse.data.portLegs,
+        },
+        {
+          dataType: "campaigns/offer",
+          description:
+            "Used to find campaings and offers that fjordline is currently offering",
+          campaigns: sanityData,
         },
       ]}
     />

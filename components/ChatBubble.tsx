@@ -10,6 +10,9 @@ type Props = {
 const ChatBubble = (props: Props) => {
   const messageRef = useRef<HTMLParagraphElement>(null);
   const { message, sender } = props;
+  // As we make the AI responde in HTML we inject the response directly to the messageRef
+  // This way we can provide working links based on the context that the AI is given
+  // This way we can also train the AI to make custom HTML templates when answering a question to make the UI of the response custumizable
   useEffect(() => {
     if (messageRef.current) {
       messageRef.current.innerHTML = message;
