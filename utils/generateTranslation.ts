@@ -12,7 +12,7 @@ export const generateTranslation = async (
   const completion = await openAiClient.createCompletion({
     model: "text-davinci-003",
     prompt: contexts.translation,
-    temperature: 0.2,
+    temperature: 1,
     max_tokens: 150,
     top_p: 0,
     frequency_penalty: 1,

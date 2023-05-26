@@ -13,7 +13,7 @@ export const generateQuestion = async (
   const contexts = {
     sarcastic: sarcasticContext(prompt, contextData),
     fjordline: fjordlineContext(prompt, contextData),
-    translation: translationContext(prompt, contextData, "Norwegian"),
+    translation: translationContext(prompt, "Norwegian"),
   };
   const completion = await openAiClient.createCompletion({
     model: model,
